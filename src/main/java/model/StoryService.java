@@ -8,11 +8,11 @@ public class StoryService {
     // Gets singleton instance
     private final APIClient client = APIClient.getInstance();
 
-    public Story generateStory(String title, String idea){
+    public Story generateStory(String title, String idea, String readingLevel){
         Story story = new Story();
         story.setTitle(title);
 
-        String prompt = "Write a short story based on this idea: " + idea;
+        String prompt = "Write a short story based on this idea: " + idea + readingLevel;
 
         // Generates story
         try {

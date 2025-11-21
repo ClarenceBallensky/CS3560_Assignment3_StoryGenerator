@@ -26,6 +26,7 @@ public class Main extends Application {
 
         launch(args);
 
+        /*
         // Get title of story
         System.out.println("Please enter the title of the story:");
         Scanner sc = new Scanner(System.in);
@@ -37,11 +38,12 @@ public class Main extends Application {
 
         // Send call to API
         StoryService storyService = new StoryService();
-        Story story = storyService.generateStory(title, description);
+        Story story = storyService.generateStory(title, description, readingLevel);
 
         // Print story
         System.out.println("Here is your story:");
         System.out.println("Title: \"" + story.getTitle()+"\"");
         System.out.println(story.getFullText());
+         */
     }
 }
