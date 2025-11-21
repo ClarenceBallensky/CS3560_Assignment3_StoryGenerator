@@ -13,7 +13,7 @@ public class APIClient {
 
     private APIClient() {
         // Paste your API key in this line:
-        client = Client.builder().apiKey("ENTER_YOUR_KEY_HERE").build();
+        client = Client.builder().apiKey("INSERT_YOUR_API_KEY_HERE").build();
 
         // Gemini model
         model = "gemini-2.5-flash";
