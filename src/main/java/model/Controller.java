@@ -33,6 +33,10 @@ public class Controller {
     private ComboBox<String> readingLevel;
 
     @FXML
+    //this is where the user will enter their desired word count
+    private TextField lengthInputField;
+
+    @FXML
     //this is the button the user can click to generate the story
     private Button generateStory;
 
@@ -49,10 +53,11 @@ public class Controller {
     private void handleGenerateStory() {
         String title = titleInputField.getText();
         String description = descriptionInputField.getText();
+        Integer length =  Integer.parseInt(lengthInputField.getText());
 
         //call the API service
         StoryService storyService = new StoryService();
-        Story story = storyService.generateStory(title, description, selectedReadingLevel);
+        Story story = storyService.generateStory(title, description, selectedReadingLevel, length);
 
         outputArea.setText(story.getFullText());
     }
