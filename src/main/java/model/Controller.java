@@ -28,16 +28,20 @@ public class Controller {
     //this is where the AI-generated story will go
     private TextArea outputArea;
 
+    //for the old reading level drop down menu
     //@FXML
     //private ComboBox<String> readingLevel;
 
     @FXML
+    //to select child reading level
     private RadioButton childOption;
 
     @FXML
+    //to select teen reading level
     private RadioButton teenOption;
 
     @FXML
+    //to select adult reading level
     private RadioButton adultOption;
 
     @FXML
@@ -60,6 +64,7 @@ public class Controller {
     //this is the button the user can click to generate the story
     private Button generateStory;
 
+    //for the old reading level dropdown menu
     @FXML
     private void initialize() {
         //readingLevel.setItems(readingLevelList);
