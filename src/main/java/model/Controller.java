@@ -13,8 +13,8 @@ import javafx.scene.control.ComboBox;
 
 public class Controller {
 
-    String readingLevel;
-    ObservableList<String> readingLevelList = FXCollections.observableArrayList("Child", "Teen", "Adult");
+    //initially set selectedReadingLevel to null
+    String selectedReadingLevel = null;
 
     @FXML
     //this is where the user will enter the story title
@@ -28,58 +28,31 @@ public class Controller {
     //this is where the AI-generated story will go
     private TextArea outputArea;
 
-    //for the old reading level drop down menu
-    //@FXML
-    //private ComboBox<String> readingLevel;
-
     @FXML
-    //to select child reading level
-    private RadioButton childOption;
-
-    @FXML
-    //to select teen reading level
-    private RadioButton teenOption;
-
-    @FXML
-    //to select adult reading level
-    private RadioButton adultOption;
-
-    @FXML
-    private void getReadingLevel() {
-        if (childOption.isSelected()) {
-            readingLevel = "Child";
-        }
-        else if (teenOption.isSelected()) {
-            readingLevel = "Teen";
-        }
-        else if (adultOption.isSelected()) {
-            readingLevel = "Adult";
-        }
-        else { //nothing selected
-            readingLevel = null;
-        }
-    }
+    //dropdown menu for readingLevel selection
+    private ComboBox<String> readingLevel;
 
     @FXML
     //this is the button the user can click to generate the story
     private Button generateStory;
 
-    //for the old reading level dropdown menu
+
     @FXML
-    private void initialize() {
-        //readingLevel.setItems(readingLevelList);
+    //for the readingLevel dropdown menu
+    private void getReadingLevel() {
+        selectedReadingLevel = readingLevel.getSelectionModel().getSelectedItem();
     }
 
 
     @FXML
+    //when user clicks the "Generate Story" button, the user inputs are used to generate an AI story
     private void handleGenerateStory() {
         String title = titleInputField.getText();
         String description = descriptionInputField.getText();
-        //this.readingLevel = readingLevel;
 
         //call the API service
         StoryService storyService = new StoryService();
-        Story story = storyService.generateStory(title, description, readingLevel);
+        Story story = storyService.generateStory(title, description, selectedReadingLevel);
 
         outputArea.setText(story.getFullText());
     }
