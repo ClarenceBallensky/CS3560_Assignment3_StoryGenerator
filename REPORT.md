@@ -6,7 +6,15 @@ Problem: ChatGPT tokens were innefective as an API key
 
 Solution: Used Google AI Studio's API key instead
 
-Learned: Select a service to provide an API key based on cost, ease of use, and relevant functioality
+Learned: Select a service to provide an API key based on cost, ease of use, and relevant functionality
+
+**Challenge 2: JUnit Testing API Calls**
+
+Problem: Doing real API calls for JUnit testing is slow and uses tokens
+
+Solution: Created a "fake API" using an interface
+
+Learned: JUnit tests shouldn't make real API calls, but should still test whether the correct inputs are being passed
 
 ## Design Pattern Justifications
 
