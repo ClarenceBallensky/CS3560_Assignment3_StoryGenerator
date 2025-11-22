@@ -17,6 +17,7 @@ Solution: Created a "fake API" using an interface
 Learned: JUnit tests shouldn't make real API calls, but should still test whether the correct inputs are being passed
 
 **Challenge 3: SceneBuilder Configuration Setback**
+
 Problem: SceneBuilder would not link with the IDE I was using, IntelliJ
 
 Solution: Specified the proper controller class in SceneBuilder settings
