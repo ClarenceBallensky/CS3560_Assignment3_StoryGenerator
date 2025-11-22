@@ -4,7 +4,7 @@ import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 
 // Send request to Gemini
-public class APIClient {
+public class APIClient implements InterfaceAPI {
 
     // Singleton
     private static APIClient instance;
