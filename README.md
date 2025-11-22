@@ -2,11 +2,12 @@
 Generates a text story based on user specifications. 
 
 ## Setup
-1. Get API key from [Google AI Studio](aistudio.google.com)
-2. 
+1. Clone this GitHub Repository 
+2. Get API key from [Google AI Studio](aistudio.google.com)
+3. 
 
 ## Features
-* reading level selection
+* reading level selection (e.g. child, teen, adult
 * story length customization 
 
 ## Design Patterns
