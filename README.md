@@ -8,8 +8,8 @@ Generates a text story based on user specifications.
 4. Navigate to "CS3560_Assignment3_StoryGenerator\src\main\java\main\Main.java" and run Main.java
 
 ## Features
-* reading level selection (e.g. child, teen, adult
-* story length customization 
+* Reading level selection (e.g. child, teen, adult)
+* Story length customization 
 
 ## Design Patterns
 * Strategy: Different reading level options
