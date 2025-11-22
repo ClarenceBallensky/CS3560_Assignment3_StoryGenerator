@@ -12,6 +12,9 @@ Generates a text story based on user specifications.
 * story length customization 
 
 ## Design Patterns
+* Strategy: Different reading level options
+* Factory: Prompt modification 
+* Observer: Content curation 
 
 ## Demo
 [Video Link]
