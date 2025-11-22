@@ -31,5 +31,6 @@
       <Label layoutX="178.0" layoutY="146.0" text="Story Length" />
       <TextField fx:id="lengthInputField" layoutX="182.0" layoutY="170.0" prefHeight="26.0" prefWidth="64.0" />
       <Label layoutX="246.0" layoutY="174.0" text="words" />
+      <Label fx:id="errorMessage" layoutX="128.0" layoutY="241.0" textFill="#ef3309" />
    </children>
 </AnchorPane>
