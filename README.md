@@ -17,7 +17,7 @@ Generates a text story based on user specifications.
 * Observer: Content curation 
 
 ## Demo
-[Video Link]
+[Demo Video](https://drive.google.com/file/d/1YyI9LN6JOQUh5i7LM05RV_R3JHnXneUp/view?usp=sharing)
 
 ## Contributers
 * Clarence Ballensky [ClarenceBallensky](https://github.com/ClarenceBallensky)
