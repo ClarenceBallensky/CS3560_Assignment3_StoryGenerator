@@ -5,8 +5,6 @@ import model.Story;
 import model.StoryService;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 class LogicTesting {
     // Fake API Client for testing
