@@ -7,7 +7,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.ComboBox;
 import model.Story;
+import model.StoryPersistence;
 import model.StoryService;
+
+import java.io.IOException;
 
 public class Controller {
 
@@ -17,6 +20,8 @@ public class Controller {
     String title = null;
     String description = null;
     Boolean hasErrors = false;
+
+    Story story;
 
     @FXML
     //this is where the user will enter the story title
@@ -44,6 +49,13 @@ public class Controller {
 
     @FXML
     private Label errorMessage;
+
+    @FXML
+    private Button saveStory;
+    @FXML
+    private Button loadStory;
+    @FXML
+    private Button addChapter;
 
 
     @FXML
@@ -86,16 +98,25 @@ public class Controller {
         if (hasErrors) {
             return;
         }
-
-
             //replace any former error messages with a confirmation message 
             errorMessage.setStyle("-fx-text-fill: black;");
             errorMessage.setText("Please wait up to one minute for your story to generate.");
 
             //call the API service
             StoryService storyService = new StoryService();
-            Story story = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
+            story = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
 
             outputArea.setText(story.getFullText());
     }
+
+    @FXML
+    private void handleSaveStory() {
+        try {
+            StoryPersistence.saveStory(story);
+            errorMessage.setText("Story saved!");
+        } catch (IOException e) {
+            errorMessage.setText("Error saving the story.");
+        }
+    }
+
 }
