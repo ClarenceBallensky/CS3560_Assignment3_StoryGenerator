@@ -9,6 +9,7 @@ import javafx.scene.control.ComboBox;
 import model.Story;
 import model.StoryPersistence;
 import model.StoryService;
+import model.Book;
 
 import java.io.IOException;
 
@@ -22,6 +23,8 @@ public class Controller {
     Boolean hasErrors = false;
 
     Story story;
+
+    Book book;
 
     @FXML
     //this is where the user will enter the story title
@@ -118,26 +121,19 @@ public class Controller {
 
         //call the API service
         StoryService storyService = new StoryService();
-        story = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
+        Story firstChapter = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
 
-        outputArea.setText(story.getFullText());
+        book = new Book(title, selectedReadingLevel);
+        book.addChapter(firstChapter.getFullText());
+
+        outputArea.setText(book.getFullBookText());
     }
 
     @FXML
     private void handleSaveStory() {
-
-        /*try {
-            StoryPersistence.saveStory(story);
-            errorMessage.setText("Story saved!");
-        } catch (IOException e) {
-            errorMessage.setText("Error saving the story.");
-        }*/
-
-        //get the title of the story we want to load
         String filename = loadInputField.getText();
         try {
-            String fullStory = outputArea.getText();
-            StoryPersistence.saveStringsStory(filename, fullStory);
+            StoryPersistence.saveBook(book);
             errorMessage.setStyle("-fx-text-fill: black;");
             errorMessage.setText("Story saved!");
         } catch (IOException e) {
@@ -155,9 +151,8 @@ public class Controller {
             //get the title of the story we want to load
             String filename = loadInputField.getText();
 
-            //retrieve the story from the stories directory 
-            String storyBody = StoryPersistence.loadStory(filename);
-            outputArea.setText(storyBody);
+            book = StoryPersistence.loadBook(filename);
+            outputArea.setText(book.getFullBookText());
 
         } catch (IOException e) {
             errorMessage.setStyle("-fx-text-fill: red;");
@@ -169,7 +164,13 @@ public class Controller {
     @FXML
     private void handleAddChapter() {
 
-        String storyBody = outputArea.getText();
+        //String storyBody = outputArea.getText();
+
+        if (book == null) {
+            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setText("Load or generate a story before adding a chapter.");
+            return;
+        }
 
         //if user input has errors, return handleAddChapter without generating the new chapter
         if (validateUserInputs("chapter")) {
@@ -182,18 +183,13 @@ public class Controller {
 
         //call the API service
         StoryService storyService = new StoryService();
-        Story newChapter = storyService.generateAdditionalChapter(storyBody, title, description, selectedReadingLevel, storyLength);
+        Story newChapter = storyService.generateAdditionalChapter(book.getFullBookText(), title, description, selectedReadingLevel, storyLength);
 
-        outputArea.appendText(newChapter.getFullText());
+        book.addChapter(newChapter.getFullText());
+
+        outputArea.setText(book.getFullBookText());
 
         handleSaveStory();
-        /*story.setFullText(outputArea.getText());
-        try {
-            StoryPersistence.saveStringsStory(loadInputField.getText(), outputArea.getText());
-        } catch (IOException e) {
-            errorMessage.setStyle("-fx-text-fill: red;");
-            errorMessage.setText("There was an error while saving your story.");
-        }*/
     }
 
 }

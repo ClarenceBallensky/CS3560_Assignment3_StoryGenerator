@@ -4,49 +4,52 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.Path;
-import java.util.List;
 
 public class StoryPersistence {
-    // Allow user to save their story to a text file
-    /*public static void saveStory(Story story) throws IOException {
-        String filename = "stories/" + story.getTitle() + ".txt";
 
+    public static void saveBook(Book book) throws IOException {
         File dir = new File("stories");
         if (!dir.exists()) {
             dir.mkdir();
         }
+
+        String filename = "stories/" + book.getTitle() + ".txt";
 
         try (FileWriter writer = new FileWriter(filename, false)) {
-            writer.write("Title: " + story.getTitle() + "\n");
-            writer.write("Reading Level: " + story.getReadingLevel() + "\n");
-            writer.write("Word Count: " + story.getWordCount() + "\n\n");
-            writer.write(story.getFullText());
-            writer.write("\n\n-----------------------------------------------------------------------\n\n");
-        }
-    }*/
 
-    //allows user to save their story to a text
-    public static void saveStringsStory(String title, String fullStory) throws IOException {
-        String filename = "stories/" + title + ".txt";
-
-        File dir = new File("stories");
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
-
-        try (FileWriter writer = new FileWriter(filename)) {
-            //writer.write("Title: " + title + "\n\n");
-            writer.write(fullStory.trim());
+            writer.write("Title: " + book.getTitle() + "\n");
+            writer.write("Reading Level: " + book.getReadingLevel() + "\n");
+         
+            int i = 1;
+            for (String chapter : book.getChapters()) {
+                writer.write("\n\n=== Chapter " + i + " ===\n");
+                writer.write(chapter);
+                i++;
+            }
         }
     }
 
-    public static String loadStory(String filename) throws IOException { 
-        return Files.readString(Path.of("stories/" + filename + ".txt"));
-    }
+    public static Book loadBook(String filename) throws IOException {
+        //get full text of a book saved to the stories directory 
+        String raw = Files.readString(Path.of("stories/" + filename + ".txt"));
 
-    public static void addChapter(Story story) {
+        //parse data
+        String title = raw.split("\n")[0].replace("Title: ", "").trim();
+        String readingLevel = raw.split("\n")[1].replace("Reading Level: ", "").trim();
 
+        //Create new book object
+        Book book = new Book(title, readingLevel);
+
+        //get just the chapter body without the "=== Chapter # ===\n" heading
+        String[] parts = raw.split("\n\n=== Chapter ");
+        for (int i = 1; i < parts.length; i++) {
+            int firstNewline = parts[i].indexOf('\n');
+            String chapterBody = parts[i].substring(firstNewline + 1).trim();
+            //String chapterBody = parts[i].substring(parts[i].indexOf("\n")).trim(); 
+            book.addChapter(chapterBody);
+        }
+
+        return book;
     }
 }
