@@ -165,6 +165,7 @@ public class Controller {
     private void handleAddChapter() {
 
         //String storyBody = outputArea.getText();
+        handleLoadStory();
 
         if (book == null) {
             errorMessage.setStyle("-fx-text-fill: red;");
