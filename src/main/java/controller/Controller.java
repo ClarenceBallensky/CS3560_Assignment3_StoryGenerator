@@ -64,59 +64,136 @@ public class Controller {
         selectedReadingLevel = readingLevel.getSelectionModel().getSelectedItem();
     }
 
-
+    //when the user wants to load a saved story, this is where they type the name of the story they want to load
     @FXML
-    //when user clicks the "Generate Story" button, the user inputs are used to generate an AI story
-    private void handleGenerateStory() {
+    private TextField loadInputField;
+
+    //retrieves and validates user inputs
+    //generation type refers to whether we are generating a new story, or adding a new chapter to a saved story 
+    @FXML 
+    private boolean validateUserInputs(String generationType) {
         title = titleInputField.getText();
         description = descriptionInputField.getText();
 
-        //reset the hasErrors flag each time the user clicks the "Generate Story" button
+        //reset the hasErrors flag
         hasErrors = false;
-        //reset error messages every time the user clicks the "Generate Story" button
+        //reset error messages
         errorMessage.setText("");
+        errorMessage.setStyle("-fx-text-fill: red;");
 
         try {
             storyLength = Integer.parseInt(lengthInputField.getText());
         } catch (NumberFormatException e) { //if the user does not enter an integer for story length
-            errorMessage.setText(errorMessage.getText() + "Please enter a story length between 1 and 1000 words.\n");
+            errorMessage.setText(errorMessage.getText() + "Please enter a " + generationType + " length between 1 and 1000 words.\n");
             hasErrors = true;
         }
         if (storyLength > 1000) { //if the user requests a story length that is too many words long
-            errorMessage.setText(errorMessage.getText() + "Please enter a story length between 1 and 1000 words.\n");
+            errorMessage.setText(errorMessage.getText() + "Please enter a " + generationType + " length between 1 and 1000 words.\n");
             hasErrors = true;
         }
         if (title.length() > 100) { //if the user enters a story title that is too many characters long
-            errorMessage.setText(errorMessage.getText() + "Please enter a story title that is less than 100 characters.\n");
+            errorMessage.setText(errorMessage.getText() + "Please enter a " + generationType + " title that is less than 100 characters.\n");
             hasErrors = true;
         }
         if (description.length() > 3000) {
-            errorMessage.setText(errorMessage.getText() +  "Please enter a story description that is less than 3000 characters.\n");
+            errorMessage.setText(errorMessage.getText() +  "Please enter a " + generationType + " that is less than 3000 characters.\n");
             hasErrors = true;
         }
 
-        if (hasErrors) {
-            return;
+        return hasErrors;
+    }
+
+    @FXML
+    //when user clicks the "Generate Story" button, the user inputs are used to generate an AI story
+    private void handleGenerateStory() {
+        
+        //if user input has errors, return the handleGenerateStory method without generating the story
+        if (validateUserInputs("story")) { 
+            return;  
         }
-            //replace any former error messages with a confirmation message 
-            errorMessage.setStyle("-fx-text-fill: black;");
-            errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-            //call the API service
-            StoryService storyService = new StoryService();
-            story = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
+        //replace any former error messages with a confirmation message 
+        errorMessage.setStyle("-fx-text-fill: black;");
+        errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-            outputArea.setText(story.getFullText());
+        //call the API service
+        StoryService storyService = new StoryService();
+        story = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
+
+        outputArea.setText(story.getFullText());
     }
 
     @FXML
     private void handleSaveStory() {
-        try {
+
+        /*try {
             StoryPersistence.saveStory(story);
             errorMessage.setText("Story saved!");
         } catch (IOException e) {
             errorMessage.setText("Error saving the story.");
+        }*/
+
+        //get the title of the story we want to load
+        String filename = loadInputField.getText();
+        try {
+            String fullStory = outputArea.getText();
+            StoryPersistence.saveStringsStory(filename, fullStory);
+            errorMessage.setStyle("-fx-text-fill: black;");
+            errorMessage.setText("Story saved!");
+        } catch (IOException e) {
+            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setText("Error saving the story.");
         }
+    }
+
+    @FXML
+    private void handleLoadStory() {
+        //reset error message every time user clicks the "Load Story" button
+        errorMessage.setText("");
+
+        try {
+            //get the title of the story we want to load
+            String filename = loadInputField.getText();
+
+            //retrieve the story from the stories directory 
+            String storyBody = StoryPersistence.loadStory(filename);
+            outputArea.setText(storyBody);
+
+        } catch (IOException e) {
+            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setText("Error reading file: " + e.getMessage());
+        }
+
+    }
+
+    @FXML
+    private void handleAddChapter() {
+
+        String storyBody = outputArea.getText();
+
+        //if user input has errors, return handleAddChapter without generating the new chapter
+        if (validateUserInputs("chapter")) {
+            return;
+        }
+
+        //replace any former error messages with a confirmation message 
+        errorMessage.setStyle("-fx-text-fill: black;");
+        errorMessage.setText("Please wait up to one minute for your story to generate.");
+
+        //call the API service
+        StoryService storyService = new StoryService();
+        Story newChapter = storyService.generateAdditionalChapter(storyBody, title, description, selectedReadingLevel, storyLength);
+
+        outputArea.appendText(newChapter.getFullText());
+
+        handleSaveStory();
+        /*story.setFullText(outputArea.getText());
+        try {
+            StoryPersistence.saveStringsStory(loadInputField.getText(), outputArea.getText());
+        } catch (IOException e) {
+            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setText("There was an error while saving your story.");
+        }*/
     }
 
 }
