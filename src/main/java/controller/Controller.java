@@ -10,10 +10,18 @@ import model.Story;
 import model.StoryPersistence;
 import model.StoryService;
 import model.Book;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.IOException;
+import java.util.ResourceBundle;
+import java.net.URL;
+import javafx.fxml.Initializable;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
-public class Controller {
+public class Controller implements Initializable {
 
     //initially set selectedReadingLevel to null
     String selectedReadingLevel = null;
@@ -25,6 +33,9 @@ public class Controller {
     Story story;
 
     Book book;
+
+    ObservableList<String> bookNames = FXCollections.observableArrayList();
+
 
     @FXML
     //this is where the user will enter the story title
@@ -70,6 +81,29 @@ public class Controller {
     //when the user wants to load a saved story, this is where they type the name of the story they want to load
     @FXML
     private TextField loadInputField;
+
+    @FXML
+    private ComboBox<String> storyDropdown;
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        storyDropdown.setItems(bookNames);
+    }
+
+    public void refreshStoryNames() {
+        bookNames.clear(); //clear the current booknames list
+
+        File folder = new File("stories");
+        File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
+
+        if (files != null) {
+            for (File f : files) {
+                bookNames.add(f.getName().replace(".txt", ""));
+            }
+        }
+
+
+    }
+
 
     //retrieves and validates user inputs
     //generation type refers to whether we are generating a new story, or adding a new chapter to a saved story 
@@ -131,7 +165,6 @@ public class Controller {
 
     @FXML
     private void handleSaveStory() {
-        String filename = loadInputField.getText();
         try {
             StoryPersistence.saveBook(book);
             errorMessage.setStyle("-fx-text-fill: black;");
@@ -139,6 +172,10 @@ public class Controller {
         } catch (IOException e) {
             errorMessage.setStyle("-fx-text-fill: red;");
             errorMessage.setText("Error saving the story.");
+        }
+
+        if (!bookNames.contains(book.getTitle())) {
+            bookNames.add(book.getTitle());
         }
     }
 

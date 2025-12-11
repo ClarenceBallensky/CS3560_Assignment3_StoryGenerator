@@ -36,5 +36,6 @@
       <Button fx:id="loadStory" layoutX="408.0" layoutY="276.0" mnemonicParsing="false" onAction="#handleLoadStory" text="Load Story" />
       <Button fx:id="addChapter" layoutX="488.0" layoutY="276.0" mnemonicParsing="false" onAction="#handleAddChapter" text="Add Chapter" />
       <TextField fx:id="loadInputField" layoutX="414.0" layoutY="223.0" />
+      <ComboBox fx:id="storyDropdown" layoutX="413.0" layoutY="171.0" prefWidth="150.0" />
    </children>
 </AnchorPane>
