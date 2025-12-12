@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import model.Story;
 import model.StoryPersistence;
 import model.StoryService;
+import model.BookService;
 import model.Book;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,15 +33,15 @@ public class Controller implements Initializable {
     ObservableList<String> bookNames = FXCollections.observableArrayList();
 
     @FXML
-    //this is where the user will enter the story title
+    //where the user will enter the book title
     private TextField titleInputField;
 
     @FXML
-    //this is where the user will enter the story description
+    //where the user will enter the description
     private TextArea descriptionInputField;
 
     @FXML
-    //this is where the AI-generated story will go
+    //where the AI-generated story will go
     private TextArea outputArea;
 
     @FXML
@@ -48,9 +49,10 @@ public class Controller implements Initializable {
     private ComboBox<String> readingLevel;
 
     @FXML
-    //this is where the user will enter their desired word count
+    //where the user will enter their desired word count
     private TextField lengthInputField;
 
+    //where error messages are printed as needed
     @FXML
     private Label errorMessage;
 
@@ -60,17 +62,20 @@ public class Controller implements Initializable {
         selectedReadingLevel = readingLevel.getSelectionModel().getSelectedItem();
     }
 
+    //this indicates how close the story is to being generated 
     @FXML private ProgressIndicator loadingSpinner;
 
+    //dropdown menu of all the names of saved books 
     @FXML
     private ComboBox<String> storyDropdown;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        refreshStoryNames();
+        refreshBookNames();
         storyDropdown.setItems(bookNames);
     }
 
-    public void refreshStoryNames() {
+    //updates the dropdown menu of all the names of saved books 
+    public void refreshBookNames() {
         //bookNames.clear(); //clear the current booknames list
 
         File folder = new File("stories");
@@ -87,9 +92,8 @@ public class Controller implements Initializable {
         }
     }
 
-
     //retrieves and validates user inputs
-    //generation type refers to whether we are generating a new story, or adding a new chapter to a saved story 
+    //generation type refers to whether we are generating a new book, or adding a new chapter to a saved book 
     @FXML 
     private boolean validateUserInputs(String generationType) {
         title = titleInputField.getText();
@@ -138,7 +142,7 @@ public class Controller implements Initializable {
         errorMessage.setStyle("-fx-text-fill: black;");
         errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-        //call the API service in the background so UI can update freely
+        /*//call the API service in the background so UI can update freely
         Task<Story> task = new Task<>() {
             @Override
             protected Story call() throws Exception {
@@ -146,14 +150,37 @@ public class Controller implements Initializable {
                 return storyService.generateStory(title, description, selectedReadingLevel, storyLength
                 );
             }
+        };*/
+
+        //call the API service in the background so UI can update freely
+        Task<Book> task = new Task<>() {
+            @Override
+            protected Book call() throws Exception {
+                BookService storyService = new BookService();
+                return storyService.generateBook(title, description, selectedReadingLevel, storyLength);
+            }
         };
 
-        //when finished (on UI thread)
+        /*//when finished (on UI thread)
         task.setOnSucceeded(event -> {
             Story firstChapter = task.getValue();
 
             book = new Book(title, selectedReadingLevel);
             book.addChapter(firstChapter.getFullText());
+            outputArea.setText(book.getFullBookText());
+            loadingSpinner.setVisible(false); // hide after finishing
+            errorMessage.setText("Story generated!");
+        });*/
+
+        //when finished (on UI thread)
+        task.setOnSucceeded(event -> {
+            Book firstChapter = task.getValue();
+            System.out.println(firstChapter.getFullBookText());
+
+            book = new Book(title, selectedReadingLevel);
+            book.addChapter(firstChapter.getBodyText());
+            System.out.println(book.getFullBookText());
+
             outputArea.setText(book.getFullBookText());
             loadingSpinner.setVisible(false); // hide after finishing
             errorMessage.setText("Story generated!");
@@ -183,7 +210,7 @@ public class Controller implements Initializable {
             errorMessage.setText("Error saving the story.");
         }
         // Refresh book list
-        refreshStoryNames();
+        refreshBookNames();
     }
 
     @FXML
@@ -232,7 +259,7 @@ public class Controller implements Initializable {
         errorMessage.setText("Please wait up to one minute for your chapter to generate.");
 
         //background task to generate chapter
-        Task<Story> task = new Task<Story>() {
+        /*Task<Story> task = new Task<Story>() {
             @Override
             protected Story call() throws Exception {
                 StoryService storyService = new StoryService();
@@ -240,9 +267,18 @@ public class Controller implements Initializable {
                         selectedReadingLevel, storyLength
                 );
             }
+        };*/
+
+        Task<Book> task = new Task<Book>() {
+            @Override
+            protected Book call() throws Exception {
+                BookService storyService = new BookService();
+                return storyService.generateAdditionalChapter(book.getFullBookText(), title, description, 
+                                                               selectedReadingLevel, storyLength);
+            }
         };
 
-        //when the task succeeds, update UI
+        /*//when the task succeeds, update UI
         task.setOnSucceeded(event -> {
             Story newChapter = task.getValue();
             book.addChapter(newChapter.getFullText());
@@ -252,7 +288,23 @@ public class Controller implements Initializable {
 
             loadingSpinner.setVisible(false);
             errorMessage.setText("Chapter added!");
+        });*/
+
+        //when the task succeeds, update UI
+        task.setOnSucceeded(event -> {
+            Book newChapter = task.getValue();
+            book.addChapter(newChapter.getBodyText());
+            outputArea.setText(book.getFullBookText());
+
+            System.out.println(newChapter.getFullBookText());
+            System.out.println(book.getFullBookText());
+
+            handleSaveStory();
+
+            loadingSpinner.setVisible(false);
+            errorMessage.setText("Chapter added!");
         });
+        
 
         //handle errors
         task.setOnFailed(event -> {

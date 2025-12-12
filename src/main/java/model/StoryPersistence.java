@@ -61,9 +61,11 @@ public class StoryPersistence {
             if (firstNewline == -1) continue;
 
             String chapterBody = parts[i].substring(firstNewline + 1).trim();
+
             book.addChapter(chapterBody);
         }
 
         return book;
     }
+
 }

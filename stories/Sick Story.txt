@@ -31,3 +31,6 @@ Her vision flickered, reality dissolving into a feverish haze. Distorted shadows
 The fever grew hotter, making her skin burn. Her thoughts felt slow and fuzzy, like thinking through thick fog. Her tummy hurt, and she felt too weak to even lift her head. Everything felt heavy, pressing down. She just wanted the bad feelings to stop.
 
 --------------------------------------------------------------------------------------------------------------
+
+=== Chapter 7 ===
+Error: 400 Bad Request. API key not valid. Please pass a valid API key.
