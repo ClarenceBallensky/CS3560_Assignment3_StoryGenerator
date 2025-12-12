@@ -1,0 +1,12 @@
+.root{
+    -fx-background-color: linear-gradient(to bottom, #ade8f4, #90e0ef)
+}
+
+.button{
+    -fx-background-color: WHITE;
+}
+
+.combo-box{
+    -fx-background-color: WHITE;
+}
+

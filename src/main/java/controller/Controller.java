@@ -1,11 +1,8 @@
 package controller;
 
-import javafx.scene.control.Button;
+import javafx.concurrent.Task;
+import javafx.scene.control.*;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ComboBox;
 import model.Story;
 import model.StoryPersistence;
 import model.StoryService;
@@ -34,7 +31,6 @@ public class Controller implements Initializable {
 
     ObservableList<String> bookNames = FXCollections.observableArrayList();
 
-
     @FXML
     //this is where the user will enter the story title
     private TextField titleInputField;
@@ -56,19 +52,7 @@ public class Controller implements Initializable {
     private TextField lengthInputField;
 
     @FXML
-    //this is the button the user can click to generate the story
-    private Button generateStory;
-
-    @FXML
     private Label errorMessage;
-
-    @FXML
-    private Button saveStory;
-    @FXML
-    private Button loadStory;
-    @FXML
-    private Button addChapter;
-
 
     @FXML
     //for the readingLevel dropdown menu
@@ -76,9 +60,7 @@ public class Controller implements Initializable {
         selectedReadingLevel = readingLevel.getSelectionModel().getSelectedItem();
     }
 
-    //when the user wants to load a saved story, this is where they type the name of the story they want to load
-    @FXML
-    private TextField loadInputField;
+    @FXML private ProgressIndicator loadingSpinner;
 
     @FXML
     private ComboBox<String> storyDropdown;
@@ -117,7 +99,7 @@ public class Controller implements Initializable {
         hasErrors = false;
         //reset error messages
         errorMessage.setText("");
-        errorMessage.setStyle("-fx-text-fill: red;");
+        errorMessage.setStyle("-fx-text-fill: #a31621;");
 
         try {
             storyLength = Integer.parseInt(lengthInputField.getText());
@@ -150,18 +132,44 @@ public class Controller implements Initializable {
             return;  
         }
 
+        //show spinner
+        loadingSpinner.setVisible(true);
         //replace any former error messages with a confirmation message 
         errorMessage.setStyle("-fx-text-fill: black;");
         errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-        //call the API service
-        StoryService storyService = new StoryService();
-        Story firstChapter = storyService.generateStory(title, description, selectedReadingLevel, storyLength);
+        //call the API service in the background so UI can update freely
+        Task<Story> task = new Task<>() {
+            @Override
+            protected Story call() throws Exception {
+                StoryService storyService = new StoryService();
+                return storyService.generateStory(title, description, selectedReadingLevel, storyLength
+                );
+            }
+        };
 
-        book = new Book(title, selectedReadingLevel);
-        book.addChapter(firstChapter.getFullText());
+        //when finished (on UI thread)
+        task.setOnSucceeded(event -> {
+            Story firstChapter = task.getValue();
 
-        outputArea.setText(book.getFullBookText());
+            book = new Book(title, selectedReadingLevel);
+            book.addChapter(firstChapter.getFullText());
+            outputArea.setText(book.getFullBookText());
+            loadingSpinner.setVisible(false); // hide after finishing
+            errorMessage.setText("Story generated!");
+        });
+
+        //if something goes wrong
+        task.setOnFailed(event -> {
+            Throwable error = task.getException();
+            errorMessage.setStyle("-fx-text-fill: #a31621;");
+            errorMessage.setText("Error generating story: " + error.getMessage());
+            loadingSpinner.setVisible(false);
+            errorMessage.setText("Something went wrong...");
+        });
+
+        //start background thread
+        new Thread(task).start();
     }
 
     @FXML
@@ -171,7 +179,7 @@ public class Controller implements Initializable {
             errorMessage.setStyle("-fx-text-fill: black;");
             errorMessage.setText("Story saved!");
         } catch (IOException e) {
-            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setStyle("-fx-text-fill: #a31621;");
             errorMessage.setText("Error saving the story.");
         }
         // Refresh book list
@@ -191,8 +199,8 @@ public class Controller implements Initializable {
             outputArea.setText(book.getFullBookText());
 
         } catch (IOException e) {
-            errorMessage.setStyle("-fx-text-fill: red;");
-            errorMessage.setText("Error reading file: " + e.getMessage());
+            errorMessage.setStyle("-fx-text-fill: #a31621;");
+            errorMessage.setText("Please select a story from the Story Library to load.");
         }
 
     }
@@ -204,7 +212,7 @@ public class Controller implements Initializable {
         handleLoadStory();
 
         if (book == null) {
-            errorMessage.setStyle("-fx-text-fill: red;");
+            errorMessage.setStyle("-fx-text-fill: #a31621;");
             errorMessage.setText("Load or generate a story before adding a chapter.");
             return;
         }
@@ -218,15 +226,59 @@ public class Controller implements Initializable {
         errorMessage.setStyle("-fx-text-fill: black;");
         errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-        //call the API service
-        StoryService storyService = new StoryService();
-        Story newChapter = storyService.generateAdditionalChapter(book.getFullBookText(), title, description, selectedReadingLevel, storyLength);
+        //show spinner and message
+        loadingSpinner.setVisible(true);
+        errorMessage.setStyle("-fx-text-fill: black;");
+        errorMessage.setText("Please wait up to one minute for your chapter to generate.");
 
-        book.addChapter(newChapter.getFullText());
+        //background task to generate chapter
+        Task<Story> task = new Task<Story>() {
+            @Override
+            protected Story call() throws Exception {
+                StoryService storyService = new StoryService();
+                return storyService.generateAdditionalChapter(book.getFullBookText(), title, description,
+                        selectedReadingLevel, storyLength
+                );
+            }
+        };
 
-        outputArea.setText(book.getFullBookText());
+        //when the task succeeds, update UI
+        task.setOnSucceeded(event -> {
+            Story newChapter = task.getValue();
+            book.addChapter(newChapter.getFullText());
+            outputArea.setText(book.getFullBookText());
 
-        handleSaveStory();
+            handleSaveStory();
+
+            loadingSpinner.setVisible(false);
+            errorMessage.setText("Chapter added!");
+        });
+
+        //handle errors
+        task.setOnFailed(event -> {
+            loadingSpinner.setVisible(false);
+            errorMessage.setStyle("-fx-text-fill: #a31621;");
+            errorMessage.setText("Error generating chapter.");
+        });
+
+        //run task in background
+        new Thread(task).start();
+    }
+
+    //clear all input fields
+    @FXML
+    private void handleClearFields() {
+        //clear text inputs
+        titleInputField.clear();
+        descriptionInputField.clear();
+        lengthInputField.clear();
+        errorMessage.setText("");
+
+        //reset dropdowns
+        if (selectedReadingLevel != null) {
+            readingLevel.getSelectionModel().clearSelection();
+            selectedReadingLevel = null;
+        }
     }
 
 }
