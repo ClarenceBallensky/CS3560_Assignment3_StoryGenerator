@@ -12,7 +12,7 @@ public class Main extends Application {
     @Override
     public void start(Stage stage){
         try {
-            Parent root = FXMLLoader.load(getClass().getResource("/edu/cpp/cs3560_assignment3_storygenerator/hello-view.fxml"));
+            Parent root = FXMLLoader.load(getClass().getResource("/edu/cpp/cs3560_assignment3_storygenerator/story-gen-view.fxml"));
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();

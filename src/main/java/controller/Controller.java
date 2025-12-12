@@ -30,8 +30,6 @@ public class Controller implements Initializable {
     String description = null;
     Boolean hasErrors = false;
 
-    Story story;
-
     Book book;
 
     ObservableList<String> bookNames = FXCollections.observableArrayList();
@@ -86,22 +84,25 @@ public class Controller implements Initializable {
     private ComboBox<String> storyDropdown;
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        refreshStoryNames();
         storyDropdown.setItems(bookNames);
     }
 
     public void refreshStoryNames() {
-        bookNames.clear(); //clear the current booknames list
+        //bookNames.clear(); //clear the current booknames list
 
         File folder = new File("stories");
         File[] files = folder.listFiles((dir, name) -> name.endsWith(".txt"));
 
         if (files != null) {
             for (File f : files) {
-                bookNames.add(f.getName().replace(".txt", ""));
+                String title = f.getName().replace(".txt", "");
+                if (!bookNames.contains(title))
+                {
+                    bookNames.add(title);
+                }
             }
         }
-
-
     }
 
 
@@ -173,10 +174,8 @@ public class Controller implements Initializable {
             errorMessage.setStyle("-fx-text-fill: red;");
             errorMessage.setText("Error saving the story.");
         }
-
-        if (!bookNames.contains(book.getTitle())) {
-            bookNames.add(book.getTitle());
-        }
+        // Refresh book list
+        refreshStoryNames();
     }
 
     @FXML
@@ -186,7 +185,7 @@ public class Controller implements Initializable {
 
         try {
             //get the title of the story we want to load
-            String filename = loadInputField.getText();
+            String filename = storyDropdown.getSelectionModel().getSelectedItem();
 
             book = StoryPersistence.loadBook(filename);
             outputArea.setText(book.getFullBookText());
