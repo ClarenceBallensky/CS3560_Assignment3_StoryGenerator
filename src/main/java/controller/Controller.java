@@ -3,21 +3,16 @@ package controller;
 import javafx.concurrent.Task;
 import javafx.scene.control.*;
 import javafx.fxml.FXML;
-import model.Story;
 import model.StoryPersistence;
-import model.StoryService;
 import model.BookService;
 import model.Book;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.io.IOException;
 import java.util.ResourceBundle;
 import java.net.URL;
 import javafx.fxml.Initializable;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Controller implements Initializable {
 
@@ -142,16 +137,6 @@ public class Controller implements Initializable {
         errorMessage.setStyle("-fx-text-fill: black;");
         errorMessage.setText("Please wait up to one minute for your story to generate.");
 
-        /*//call the API service in the background so UI can update freely
-        Task<Story> task = new Task<>() {
-            @Override
-            protected Story call() throws Exception {
-                StoryService storyService = new StoryService();
-                return storyService.generateStory(title, description, selectedReadingLevel, storyLength
-                );
-            }
-        };*/
-
         //call the API service in the background so UI can update freely
         Task<Book> task = new Task<>() {
             @Override
@@ -160,17 +145,6 @@ public class Controller implements Initializable {
                 return storyService.generateBook(title, description, selectedReadingLevel, storyLength);
             }
         };
-
-        /*//when finished (on UI thread)
-        task.setOnSucceeded(event -> {
-            Story firstChapter = task.getValue();
-
-            book = new Book(title, selectedReadingLevel);
-            book.addChapter(firstChapter.getFullText());
-            outputArea.setText(book.getFullBookText());
-            loadingSpinner.setVisible(false); // hide after finishing
-            errorMessage.setText("Story generated!");
-        });*/
 
         //when finished (on UI thread)
         task.setOnSucceeded(event -> {
@@ -258,17 +232,6 @@ public class Controller implements Initializable {
         errorMessage.setStyle("-fx-text-fill: black;");
         errorMessage.setText("Please wait up to one minute for your chapter to generate.");
 
-        //background task to generate chapter
-        /*Task<Story> task = new Task<Story>() {
-            @Override
-            protected Story call() throws Exception {
-                StoryService storyService = new StoryService();
-                return storyService.generateAdditionalChapter(book.getFullBookText(), title, description,
-                        selectedReadingLevel, storyLength
-                );
-            }
-        };*/
-
         Task<Book> task = new Task<Book>() {
             @Override
             protected Book call() throws Exception {
@@ -277,18 +240,6 @@ public class Controller implements Initializable {
                                                                selectedReadingLevel, storyLength);
             }
         };
-
-        /*//when the task succeeds, update UI
-        task.setOnSucceeded(event -> {
-            Story newChapter = task.getValue();
-            book.addChapter(newChapter.getFullText());
-            outputArea.setText(book.getFullBookText());
-
-            handleSaveStory();
-
-            loadingSpinner.setVisible(false);
-            errorMessage.setText("Chapter added!");
-        });*/
 
         //when the task succeeds, update UI
         task.setOnSucceeded(event -> {

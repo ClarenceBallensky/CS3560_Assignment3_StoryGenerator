@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class Book {
 
     private String title;
+    private String description;
     private String readingLevel;
     private int wordCount;
     private List<String> chapters = new ArrayList<>();
@@ -18,6 +19,13 @@ public class Book {
     public Book(String title, String readingLevel) {
         this.title = title;
         this.readingLevel = readingLevel;
+    }
+
+    public Book(String title, String description, String readingLevel, int wordCount) {
+        this.title = title;
+        this.description = description; 
+        this.readingLevel = readingLevel;
+        this.wordCount = wordCount;
     }
     
     public void addChapter(String chapterText) {
@@ -34,6 +42,14 @@ public class Book {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getReadingLevel() {
@@ -67,7 +83,7 @@ public class Book {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < chapters.size(); i++) {
-           sb.append(chapters.get(i)).append("\n");
+           sb.append(chapters.get(i)); //.append("\n");
         }
         return sb.toString();
     } 
