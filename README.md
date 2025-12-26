@@ -24,4 +24,4 @@ Generates a text story based on user specifications.
 
 ## Contributers
 * Clarence Ballensky [ClarenceBallensky](https://github.com/ClarenceBallensky)
-* Scott Baroni [ArcaneWorm](https://github.com/ArcaneWorm)
+* Scott Baroni [ScottBaroni](https://github.com/ScottBaroni)
